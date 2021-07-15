@@ -1,4 +1,5 @@
 from numpy import sum
+from numpy import np
 
 def has_zero_row(field):
   s = sum(field, axis=1)
@@ -99,3 +100,14 @@ class SekiSolver:
     r = self._find_optimal_impl(self.field, self.depth, is_r)
     print(r[1])
     return r[0]
+
+  def from_matrix_to_number(F): #преобразует матрицу в число
+    number = ''
+    for i in range(F.shape[0]):
+      for j in range(F.shape[1]):
+        if F[i][j] != 0:
+          number += '1' * F[i][j]
+          number += '0'
+        else:
+          number += '0'
+    return int(number, base = 2)

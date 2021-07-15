@@ -111,4 +111,3 @@ class SekiSolver:
         else:
           number += '0'
     return int(number, base = 2)
- print(from_matrix_to_number(np.array([[3, 0, 1], [1, 2, 3]])))

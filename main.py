@@ -35,7 +35,6 @@ class OdnomastkaDurak:
         self.cards += self.degrees[self.size]  # обозначает начало
         if player == 1:
             self.change_player()  # теперь считаем, что первый ходит игрок 0
-        self.build_moves_tree()
 
     def who_wins(self):
         return (self.moves_tree[self.cards].who_wins + self.reverse) % 2
@@ -627,7 +626,6 @@ class OdnomastkaDurakWithWeights(OdnomastkaDurak):
         self.cards += self.degrees[self.size]  # обозначает начало
         if player == 1:
             self.change_player()  # теперь считаем, что первый ходит игрок 0
-        self.build_moves_tree()
 
     def who_wins(self):
         return (self.moves_tree[(self.cards, self.weights)].who_wins + self.reverse) % 2

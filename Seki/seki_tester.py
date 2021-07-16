@@ -13,7 +13,7 @@ for i in range(height):
   raw.append(arr)
 
 field = array(raw, dtype=int)
-solver = SekiSolver(field, type="dseki")
+solver = SekiSolver(field, type="seki")
 
 while True:
   print(solver.field)
@@ -23,4 +23,5 @@ while True:
   if pr is None:
     print("No optimal responce for C")
     break
-  solver.decrement(*pr)
+  print(pr.value, pr.x, pr.y)
+  solver.decrement(pr.x, pr.y)

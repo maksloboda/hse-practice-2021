@@ -149,6 +149,10 @@ class SekiSolver:
 
         self.unrolled += 1
 
+        # Transfer data ownership
+        alpha = cp.copy(alpha)
+        beta = cp.copy(beta)
+
         # copy = field.copy()
         value = Move(2 if is_r else -2, 0, 0)
         for move in get_moves(field):
@@ -158,15 +162,15 @@ class SekiSolver:
             new_value.x = move[1].x
             new_value.y = move[1].y
             if is_r:
-                value = cp.copy(min(value, new_value))
+                value = min(value, new_value)
                 if value <= alpha:
                     return value  # cut off
-                beta = cp.copy(min(beta, value))
+                beta = min(beta, value)
             else:
-                value = cp.copy(max(value, new_value))
+                value = max(value, new_value)
                 if value >= beta:
                     return value  # cut off
-                alpha = cp.copy(max(alpha, value))
+                alpha = max(alpha, value)
         return value
 
     def find_optimal(self, is_r):

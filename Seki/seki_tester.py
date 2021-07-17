@@ -30,7 +30,7 @@ while True:
     break
   print('time:', end - start,'|matrices per second:', solver.unrolled/(end - start), '|pr.value:', pr.value, '|pr.x:', pr.x, '|pr.y:', pr.y)
   solver.decrement(pr.x, pr.y)
-  if direct_solver.is_field_terminal(solver.field.data):
+  if solver.field.is_terminal():
     print(solver.field.data)
     break
 

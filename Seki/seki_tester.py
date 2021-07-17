@@ -16,7 +16,7 @@ field = array(raw, dtype=int)
 solver = SekiSolver(field, type="seki")
 
 while True:
-  print(solver.field)
+  print(solver.field.data)
   p = (*map(int, input("x, y").split()),)
   solver.decrement(*p)
   pr = solver.find_optimal(False)

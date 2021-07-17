@@ -1,8 +1,8 @@
 
 from direct_solver import SekiSolver
+from direct_solver_with_get_moves import SekiSolver as SekiSolver_wgm
 from numpy import array
 import sys
-import direct_solver
 import time
 height, width = map(int, input("height, width:").split())
 
@@ -31,6 +31,6 @@ while True:
   print('time:', end - start,'|matrices per second:', solver.unrolled/(end - start), '|pr.value:', pr.value, '|pr.x:', pr.x, '|pr.y:', pr.y)
   solver.decrement(pr.x, pr.y)
   if solver.field.is_terminal():
-    print(solver.field.data)
+    print('game finished\n', solver.field.data)
     break
 

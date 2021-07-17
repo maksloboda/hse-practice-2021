@@ -1,5 +1,5 @@
 from numpy import sum
-# from numpy.random import permutation as shuffle
+from numpy.random import permutation as shuffle
 import copy as cp
 
 
@@ -99,15 +99,19 @@ class Move:
         return self.value <= other.value
 
 
-
-def get_valid_moves(field):
+def get_moves(field):
+    if field.is_terminal():
+        return
     copy = field.copy()
     shape = copy.get_shape()
     coords = [(y, x) for x in range(shape[1]) for y in range(shape[0])]
+    # coords = shuffle(coords)
     for y, x in coords:
         if copy.get(x, y) == 0:
             continue
-        yield [(x, y), cp.copy(copy.get(x, y))]
+        copy.add(x, y, -1)
+        yield (copy, Move(0, x, y))
+        copy.add(x, y, +1)
 
 
 # Class used to iteratively solve the game
@@ -123,9 +127,6 @@ class SekiSolver:
         self.eval_field = eval_field_seki if type == "seki" else eval_field_dseki
         self.depth = 1
         self.unrolled = 0
-        self.valid_moves = list(get_valid_moves(Field(matrix)))
-        # for move in self.valid_moves:
-        #     print(move)
 
     def decrement(self, x, y):
         """
@@ -135,9 +136,6 @@ class SekiSolver:
         """
         self.field.add(x, y, -1)
         self.depth += 1
-        for move in self.valid_moves:
-            if x == move[0][0] and y == move[0][1]:
-                move[1] -= 1
 
     def _find_optimal_impl(self, field, depth, is_r, alpha, beta):
         """
@@ -150,24 +148,19 @@ class SekiSolver:
             return Move(final_value, 0, 0)
 
         self.unrolled += 1
-        # print('field', field.data, depth)
+
         # Transfer data ownership
         alpha = cp.copy(alpha)
         beta = cp.copy(beta)
 
         # copy = field.copy()
         value = Move(2 if is_r else -2, 0, 0)
-        for move in self.valid_moves:
-            if move[1] == 0: # если этот ход уже не валиден
-                continue
-            m = field.copy()
-            m.add(move[0][0], move[0][1], -1)
-            move[1] -= 1
+        for move in get_moves(field):
+            m = move[0]
             new_value = self._find_optimal_impl(m, depth + 1, not is_r,
                                                 alpha, beta)
-            move[1] += 1
-            new_value.x = move[0][0]
-            new_value.y = move[0][1]
+            new_value.x = move[1].x
+            new_value.y = move[1].y
             if is_r:
                 value = min(value, new_value)
                 if value <= alpha:

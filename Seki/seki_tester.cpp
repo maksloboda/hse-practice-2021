@@ -2,11 +2,11 @@
 #include <iostream>
 
 int main() {
-  Field f({{1, 2, 3}, {4, 5, 6}});
-  cout << f.is_terminal() << endl;
-  f.add(0, 0, -1);
-  cout << f.is_terminal() << endl;
-  f.add(0, 1, -4);
-  cout << f.is_terminal() << endl;
+  Field f({{0, 2, 3}, {4, 0, 6}});
+  
+  vector<Move> moves = f.get_moves();
+  for (auto &m : moves) {
+    cout << m.x << " " << m.y << endl;
+  }
   return 0;
 }

@@ -5,6 +5,35 @@
 
 using namespace std;
 
+class Move {
+public:
+  float value;
+  int x, y;
+
+  Move(float value, int x, int y) {
+    this->value = value;
+    this->x = x;
+    this->y = y;
+  }
+
+  bool operator>(const Move &other) {
+    return value > other.value;
+  }
+
+  bool operator>=(const Move &other) {
+    return value >= other.value;
+  }
+
+  bool operator<(const Move &other) {
+    return value < other.value;
+  }
+
+  bool operator<=(const Move &other) {
+    return value <= other.value;
+  }
+
+};
+
 class Field {
 private:
   array<int, 2> shape;
@@ -16,6 +45,8 @@ public:
     data = new_data;
     int n_rows = new_data.size();
     int n_cols = new_data[0].size();
+    shape[0] = n_rows;
+    shape[1] = n_cols;
     row_sum.resize(n_rows);
     col_sum.resize(n_cols);
     for (int i = 0; i < n_rows; ++i) {
@@ -30,13 +61,13 @@ public:
   }
 
   void add(int x, int y, int v) {
-    this->data[y][x] += v;
-    this->row_sum[y] += v;
-    this->col_sum[x] += v;
+    data[y][x] += v;
+    row_sum[y] += v;
+    col_sum[x] += v;
   }
 
   int get(int x, int y) const {
-    return this->data[y][x];
+    return data[y][x];
   }
 
   array<int, 2> get_shape() const {
@@ -55,6 +86,19 @@ public:
 
   bool is_terminal() const {
     return this->has_zero_row() or this->has_zero_col();
+  }
+
+  vector<Move> get_moves() {
+    vector<Move> moves;
+
+    for (int i = 0; i < shape[0]; ++i) {
+      for (int j = 0; j < shape[1]; ++j) {
+        if (data[i][j] != 0) {
+          moves.emplace_back(0, j, i);
+        }
+      }
+    }
+    return moves;
   }
 
 };

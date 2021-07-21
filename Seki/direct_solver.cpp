@@ -108,11 +108,51 @@ public:
 };
 
 ostream &operator<< (ostream &s, const Field &f) {
-    for (int i = 0; i < f.shape[0]; ++i) {
-      for (int j = 0; j < f.shape[1]; ++j) {
-        s << f.data[i][j] << " ";
-      }
-      s << "\n";
+  for (int i = 0; i < f.shape[0]; ++i) {
+    for (int j = 0; j < f.shape[1]; ++j) {
+      s << f.data[i][j] << " ";
     }
-    return s;
+    s << "\n";
   }
+  return s;
+}
+
+enum SekiType {
+  SEKI = 0,
+  DSEKI,
+};
+
+typedef float (*eval_function_t)(const Field &);
+
+float seki_eval_func(const Field &f) {
+  return 0;
+}
+
+float dseki_eval_func(const Field &f) {
+  return 0;
+}
+
+class SekiSolver {
+public:
+  Field state;
+  int depth, unrolled;
+  eval_function_t eval_function;
+
+  SekiSolver(const vector<vector<int>> &matrix, SekiType type) {
+    state = Field(matrix);
+    depth = 1;
+    unrolled = 0;
+    switch (type)
+    {
+    case SekiType::SEKI:
+      eval_function = seki_eval_func;
+      break;
+    case SekiType::DSEKI:
+      eval_function = dseki_eval_func;
+      break;
+    default:
+      throw new runtime_error("Invalid seki type");
+      break;
+    }
+  }
+};

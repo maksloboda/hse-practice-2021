@@ -99,6 +99,7 @@ public:
         }
       }
     }
+    random_shuffle(moves.begin(), moves.end());
     return moves;
   }
 

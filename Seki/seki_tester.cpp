@@ -3,7 +3,7 @@
 
 int main() {
   Field f({{0, 2, 3}, {4, 0, 6}});
-  
+  cout << f << endl;
   vector<Move> moves = f.get_moves();
   for (auto &m : moves) {
     cout << m.x << " " << m.y << endl;

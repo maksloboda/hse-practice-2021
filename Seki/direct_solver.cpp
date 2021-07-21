@@ -2,6 +2,7 @@
 #include <array>
 #include <numeric>
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -101,4 +102,16 @@ public:
     return moves;
   }
 
+  friend ostream &operator<< (ostream &s, const Field &f);
+
 };
+
+ostream &operator<< (ostream &s, const Field &f) {
+    for (int i = 0; i < f.shape[0]; ++i) {
+      for (int j = 0; j < f.shape[1]; ++j) {
+        s << f.data[i][j] << " ";
+      }
+      s << "\n";
+    }
+    return s;
+  }

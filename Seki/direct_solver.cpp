@@ -17,19 +17,19 @@ public:
     this->y = y;
   }
 
-  bool operator>(const Move &other) {
+  bool operator>(const Move &other) const {
     return value > other.value;
   }
 
-  bool operator>=(const Move &other) {
+  bool operator>=(const Move &other) const {
     return value >= other.value;
   }
 
-  bool operator<(const Move &other) {
+  bool operator<(const Move &other) const {
     return value < other.value;
   }
 
-  bool operator<=(const Move &other) {
+  bool operator<=(const Move &other) const {
     return value <= other.value;
   }
 
@@ -89,7 +89,7 @@ public:
     return this->has_zero_row() or this->has_zero_col();
   }
 
-  vector<Move> get_moves() {
+  vector<Move> get_moves() const {
     vector<Move> moves;
 
     for (int i = 0; i < shape[0]; ++i) {
@@ -138,8 +138,8 @@ public:
   int depth, unrolled;
   eval_function_t eval_function;
 
-  SekiSolver(const vector<vector<int>> &matrix, SekiType type) {
-    state = Field(matrix);
+  SekiSolver(const vector<vector<int>> &matrix, SekiType type)
+    : state(matrix) {
     depth = 1;
     unrolled = 0;
     switch (type)
@@ -155,4 +155,46 @@ public:
       break;
     }
   }
+
+  void decrement(int x, int y) {
+    state.add(x, y, -1);
+    ++depth;
+  }
+
+  Move _find_optimal_impl(const Field &field, int depth, bool is_r,
+      Move alpha, Move beta) {
+    if (field.is_terminal()) {
+      float fv = eval_function(field);
+      return Move(fv, 0, 0);
+    }
+
+    unrolled += 1;
+    auto value = Move(is_r ? 2 : -2, 0, 0);
+    for (auto &m : field.get_moves()) {
+      Field new_field = field;
+      new_field.add(m.x, m.y, -1);
+      Move new_value = _find_optimal_impl(new_field, depth + 1, !is_r,
+          alpha, beta);
+      if (is_r) {
+        value = min(value, new_value);
+        if (value <= alpha)
+          return value;
+        beta = min(beta, value);
+      } else {
+        value = max(value, new_value);
+        if (value >= beta)
+          return value;
+        alpha = max(alpha, value);
+      }
+    }
+    return value;
+  }
+
+  Move find_optimal(bool is_r) {
+    unrolled = 0;
+    Move opt = Move(0,0,0);
+    cerr << unrolled << endl;
+    return opt;
+  }
+
 };

@@ -122,14 +122,26 @@ enum SekiType {
   DSEKI,
 };
 
-typedef float (*eval_function_t)(const Field &);
+typedef float (*eval_function_t)(const Field &, int, bool);
 
-float seki_eval_func(const Field &f) {
-  return 0;
+float seki_eval_func(const Field &f, int depth, bool is_r) {
+  bool r_won = false;
+  if (f.has_zero_col() and f.has_zero_row()) {
+    r_won = !is_r;
+  } else if (f.has_zero_row()) {
+    r_won = true;
+  } else {
+    r_won = false;
+  }
+  float value = r_won ? -1 : 1;
+  return value / depth;
 }
 
-float dseki_eval_func(const Field &f) {
-  return 0;
+float dseki_eval_func(const Field &f, int depth, bool is_r) {
+  if (f.has_zero_col() and f.has_zero_row()) {
+    return 0;
+  }
+  return seki_eval_func(f, depth, is_r);
 }
 
 class SekiSolver {
@@ -164,7 +176,7 @@ public:
   Move _find_optimal_impl(const Field &field, int depth, bool is_r,
       Move alpha, Move beta) {
     if (field.is_terminal()) {
-      float fv = eval_function(field);
+      float fv = eval_function(field, depth, is_r);
       return Move(fv, 0, 0);
     }
 
@@ -192,7 +204,7 @@ public:
 
   Move find_optimal(bool is_r) {
     unrolled = 0;
-    Move opt = Move(0,0,0);
+    Move opt = _find_optimal_impl(state, depth, is_r, Move(-2, 0, 0), Move(2, 0, 0));
     cerr << unrolled << endl;
     return opt;
   }

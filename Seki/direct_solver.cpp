@@ -187,6 +187,8 @@ public:
       new_field.add(m.x, m.y, -1);
       Move new_value = _find_optimal_impl(new_field, depth + 1, !is_r,
           alpha, beta);
+      new_value.x = m.x;
+      new_value.y = m.y;
       if (is_r) {
         value = min(value, new_value);
         if (value <= alpha)

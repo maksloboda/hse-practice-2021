@@ -135,13 +135,13 @@ class OdnomastkaDurak:
                 self.change_player()
         return 0
 
-    def write_position(self, p, pole, is_catching, protection):
+    def write_position(self, p, pole, is_catching):
         self.moves_tree[self.cards].who_wins = p.who_wins
         self.moves_tree[self.cards].winning_score = p.winning_score
         self.moves_tree[self.cards].catching_the_transmission = -1
         self.moves_tree[self.cards].catching_the_take = -1
         self.moves_tree[self.cards].good_moves = [pole]
-        if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
+        if is_catching and self.moves_tree[self.cards].opponents_moves[pole] != pole:
             self.moves_tree[self.cards].catching_the_transmission = pole
         elif is_catching and self.moves_tree[self.cards].opponents_moves[pole] == pole:
             self.moves_tree[self.cards].catching_the_take = pole
@@ -193,10 +193,10 @@ class OdnomastkaDurak:
                     is_catching = False
         if self.moves_tree[self.cards].who_wins == -1 or (
                 self.moves_tree[self.cards].who_wins == 1 and p.who_wins == 0):
-            self.write_position(p, pole, is_catching, protection)
+            self.write_position(p, pole, is_catching)
         elif self.moves_tree[self.cards].who_wins == 0 and p.who_wins == 0:
             if self.moves_tree[self.cards].winning_score < p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 self.moves_tree[self.cards].good_moves.append(pole)
                 if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -206,7 +206,7 @@ class OdnomastkaDurak:
                     self.moves_tree[self.cards].catching_the_take = pole
         elif self.moves_tree[self.cards].who_wins == 1 and p.who_wins == 1:
             if self.moves_tree[self.cards].winning_score > p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 self.moves_tree[self.cards].good_moves.append(pole)
                 if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -269,14 +269,14 @@ class OdnomastkaDurakWithCountMoves(OdnomastkaDurak):
             self.build_moves_tree()
         return self.moves_tree[self.cards].when_wins
 
-    def write_position(self, p, pole, is_catching, protection):
+    def write_position(self, p, pole, is_catching):
         self.moves_tree[self.cards].who_wins = p.who_wins
         self.moves_tree[self.cards].when_wins = p.when_wins
         self.moves_tree[self.cards].winning_score = p.winning_score
         self.moves_tree[self.cards].catching_the_transmission = -1
         self.moves_tree[self.cards].catching_the_take = -1
         self.moves_tree[self.cards].good_moves = [pole]
-        if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
+        if is_catching and self.moves_tree[self.cards].opponents_moves[pole] != pole:
             self.moves_tree[self.cards].catching_the_transmission = pole
         elif is_catching and self.moves_tree[self.cards].opponents_moves[pole] == pole:
             self.moves_tree[self.cards].catching_the_take = pole
@@ -338,13 +338,13 @@ class OdnomastkaDurakWithCountMoves(OdnomastkaDurak):
                         is_catching = False
         if self.moves_tree[self.cards].who_wins == -1 or (
                 self.moves_tree[self.cards].who_wins == 1 and p.who_wins == 0):
-            self.write_position(p, pole, is_catching, protection)
+            self.write_position(p, pole, is_catching)
         elif self.moves_tree[self.cards].who_wins == 0 and p.who_wins == 0:
             if self.moves_tree[self.cards].winning_score < p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 if self.moves_tree[self.cards].when_wins > p.when_wins:
-                    self.write_position(p, pole, is_catching, protection)
+                    self.write_position(p, pole, is_catching)
                 elif self.moves_tree[self.cards].when_wins == p.when_wins:
                     self.moves_tree[self.cards].good_moves.append(pole)
                     if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -354,10 +354,10 @@ class OdnomastkaDurakWithCountMoves(OdnomastkaDurak):
                         self.moves_tree[self.cards].catching_the_take = pole
         elif self.moves_tree[self.cards].who_wins == 1 and p.who_wins == 1:
             if self.moves_tree[self.cards].winning_score > p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 if self.moves_tree[self.cards].when_wins < p.when_wins:
-                    self.write_position(p, pole, is_catching, protection)
+                    self.write_position(p, pole, is_catching)
                 elif self.moves_tree[self.cards].when_wins == p.when_wins:
                     self.moves_tree[self.cards].good_moves.append(pole)
                     if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -440,10 +440,10 @@ class OdnomastkaD_Durak(OdnomastkaDurak):
         if self.moves_tree[self.cards].who_wins == -1 or (
                 self.moves_tree[self.cards].who_wins == 1 and (p.who_wins == 0 or p.who_wins == 2)) or (
                 self.moves_tree[self.cards].who_wins == 2 and p.who_wins == 0):
-            self.write_position(p, pole, is_catching, protection)
+            self.write_position(p, pole, is_catching)
         elif self.moves_tree[self.cards].who_wins == 0 and p.who_wins == 0:
             if self.moves_tree[self.cards].winning_score < p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 self.moves_tree[self.cards].good_moves.append(pole)
                 if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -453,7 +453,7 @@ class OdnomastkaD_Durak(OdnomastkaDurak):
                     self.moves_tree[self.cards].catching_the_take = pole
         elif self.moves_tree[self.cards].who_wins == 1 and p.who_wins == 1:
             if self.moves_tree[self.cards].winning_score > p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 self.moves_tree[self.cards].good_moves.append(pole)
                 if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -564,13 +564,13 @@ class OdnomastkaD_DurakWithCountMoves(OdnomastkaDurakWithCountMoves):
         if self.moves_tree[self.cards].who_wins == -1 or (
                 self.moves_tree[self.cards].who_wins == 1 and (p.who_wins == 0 or p.who_wins == 2)) or (
                 self.moves_tree[self.cards].who_wins == 2 and p.who_wins == 0):
-            self.write_position(p, pole, is_catching, protection)
+            self.write_position(p, pole, is_catching)
         elif self.moves_tree[self.cards].who_wins == 0 and p.who_wins == 0:
             if self.moves_tree[self.cards].winning_score < p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 if self.moves_tree[self.cards].when_wins > p.when_wins:
-                    self.write_position(p, pole, is_catching, protection)
+                    self.write_position(p, pole, is_catching)
                 elif self.moves_tree[self.cards].when_wins == p.when_wins:
                     self.moves_tree[self.cards].good_moves.append(pole)
                     if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -580,10 +580,10 @@ class OdnomastkaD_DurakWithCountMoves(OdnomastkaDurakWithCountMoves):
                         self.moves_tree[self.cards].catching_the_take = pole
         elif self.moves_tree[self.cards].who_wins == 1 and p.who_wins == 1:
             if self.moves_tree[self.cards].winning_score > p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[self.cards].winning_score == p.winning_score:
                 if self.moves_tree[self.cards].when_wins < p.when_wins:
-                    self.write_position(p, pole, is_catching, protection)
+                    self.write_position(p, pole, is_catching)
                 elif self.moves_tree[self.cards].when_wins == p.when_wins:
                     self.moves_tree[self.cards].good_moves.append(pole)
                     if is_catching and self.moves_tree[self.cards].opponents_moves[pole] == protection:
@@ -696,14 +696,14 @@ class OdnomastkaDurakWithWeights(OdnomastkaDurak):
             self.change_player()
             return res
 
-    def write_position(self, p, pole, is_catching, protection):
+    def write_position(self, p, pole, is_catching):
         now = (self.cards, self.weights)
         self.moves_tree[now].who_wins = p.who_wins
         self.moves_tree[now].winning_score = p.winning_score
         self.moves_tree[now].catching_the_transmission = -1
         self.moves_tree[now].catching_the_take = -1
         self.moves_tree[now].good_moves = [pole]
-        if is_catching and self.moves_tree[now].opponents_moves[pole] == protection:
+        if is_catching and self.moves_tree[now].opponents_moves[pole] != pole:
             self.moves_tree[now].catching_the_transmission = pole
         elif is_catching and self.moves_tree[now].opponents_moves[pole] == pole:
             self.moves_tree[now].catching_the_take = pole
@@ -715,64 +715,59 @@ class OdnomastkaDurakWithWeights(OdnomastkaDurak):
         self.pole = -1
         self.build_moves_tree()
         take = (self.cards, self.weights)
-        who_wins_take = self.moves_tree[take].who_wins
         self.change_position(pole)
         protection = pole  # карта защиты
-        while protection < self.size and self.has_player_position(protection, 0):
-            protection += 1
-        p = Position(who_wins_take, self.moves_tree[take].winning_score)  # что получится после этого хода
+        p = Position(self.moves_tree[take].who_wins, self.moves_tree[take].winning_score)  # что получится после этого хода
         self.moves_tree[now].opponents_moves[pole] = pole
         is_catching = False
-        if protection != self.size:
-            w1, w2 = self.weights[pole], self.weights[protection]
-            self.remove(pole, protection)
-            self.change_player()  # из-за этого ответ кто выиграл для этого случая будет обратный
-            transmission = (self.cards, self.weights)
-            self.build_moves_tree()
-            self.change_player()
-            self.add(pole, 0, w1, protection, 1, w2)
-            is_catching = True
-            who_wins_transmission = (self.moves_tree[transmission].who_wins + 1) % 2
-            if who_wins_take == 0 and who_wins_transmission == 1:
-                p = Position(1, self.moves_tree[transmission].winning_score)
-                self.moves_tree[now].opponents_moves[pole] = protection
-            elif who_wins_take == 1 and who_wins_transmission == 1:
-                p.who_wins = 1
-                if self.moves_tree[take].winning_score < self.moves_tree[transmission].winning_score:
+        has_equal = False
+        while protection + 1 < self.size:
+            protection += 1
+            if self.has_player_position(protection, 1):
+                w1, w2 = self.weights[pole], self.weights[protection]
+                self.remove(pole, protection)
+                self.change_player()  # из-за этого ответ кто выиграл для этого случая будет обратный
+                transmission = (self.cards, self.weights)
+                self.build_moves_tree()
+                self.change_player()
+                self.add(pole, 0, w1, protection, 1, w2)
+                who_wins_transmission = (self.moves_tree[transmission].who_wins + 1) % 2
+                if self.moves_tree[take].who_wins == who_wins_transmission and \
+                        self.moves_tree[take].winning_score == self.moves_tree[transmission].winning_score:
+                    has_equal = True
+                if p.who_wins == 0 and who_wins_transmission == 1:
+                    p = Position(1, self.moves_tree[transmission].winning_score)
+                    self.moves_tree[now].opponents_moves[pole] = protection
+                elif p.who_wins == 1 and who_wins_transmission == 1 and\
+                        p.winning_score < self.moves_tree[transmission].winning_score:
                     p.winning_score = self.moves_tree[transmission].winning_score
                     self.moves_tree[now].opponents_moves[pole] = protection
-                elif self.moves_tree[take].winning_score == self.moves_tree[transmission].winning_score:
-                    p.winning_score = self.moves_tree[transmission].winning_score
-                    self.moves_tree[now].opponents_moves[pole] = pole
-                    is_catching = False
-            elif who_wins_take == 0 and who_wins_transmission == 0:
-                p.who_wins = 0
-                if self.moves_tree[take].winning_score > self.moves_tree[transmission].winning_score:
+                elif p.who_wins == 0 and who_wins_transmission == 0 and \
+                        p.winning_score > self.moves_tree[transmission].winning_score:
                     p.winning_score = self.moves_tree[transmission].winning_score
                     self.moves_tree[now].opponents_moves[pole] = protection
-                elif self.moves_tree[take].winning_score == self.moves_tree[transmission].winning_score:
-                    p.winning_score = self.moves_tree[transmission].winning_score
-                    self.moves_tree[now].opponents_moves[pole] = pole
-                    is_catching = False
+                if p.who_wins != self.moves_tree[take].who_wins or \
+                        p.winning_score != self.moves_tree[take].winning_score or not has_equal:
+                    is_catching = True
         if self.moves_tree[now].who_wins == -1 or (
                 self.moves_tree[now].who_wins == 1 and p.who_wins == 0):
-            self.write_position(p, pole, is_catching, protection)
+            self.write_position(p, pole, is_catching)
         elif self.moves_tree[now].who_wins == 0 and p.who_wins == 0:
             if self.moves_tree[now].winning_score < p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[now].winning_score == p.winning_score:
                 self.moves_tree[now].good_moves.append(pole)
-                if is_catching and self.moves_tree[now].opponents_moves[pole] == protection:
+                if is_catching and self.moves_tree[now].opponents_moves[pole] != pole:
                     self.moves_tree[now].catching_the_transmission = pole
                 elif is_catching and self.moves_tree[now].opponents_moves[pole] == pole and \
                         self.moves_tree[now].catching_the_take == -1:
                     self.moves_tree[now].catching_the_take = pole
         elif self.moves_tree[now].who_wins == 1 and p.who_wins == 1:
             if self.moves_tree[now].winning_score > p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
+                self.write_position(p, pole, is_catching)
             elif self.moves_tree[now].winning_score == p.winning_score:
                 self.moves_tree[now].good_moves.append(pole)
-                if is_catching and self.moves_tree[now].opponents_moves[pole] == protection:
+                if is_catching and self.moves_tree[now].opponents_moves[pole] != pole:
                     self.moves_tree[now].catching_the_transmission = pole
                 elif is_catching and self.moves_tree[now].opponents_moves[pole] == pole and \
                         self.moves_tree[now].catching_the_take == -1:
@@ -782,10 +777,16 @@ class OdnomastkaDurakWithWeights(OdnomastkaDurak):
         now = (self.cards, self.weights)
         if not self.moves_tree.get(now) is None:
             return
-        if self.cards == self.degrees[self.size]:  # проверить случай ничьи 01
+        if self.cards == self.degrees[self.size]:
+            if sum(self.weights) < 0:
+                self.moves_tree[now] = Position(0, sum(self.weights))
+                return
             self.moves_tree[now] = Position(1, sum(self.weights))
             return
         if self.cards == (self.degrees[self.size + 1] - 1):
+            if sum(self.weights) < 0:
+                self.moves_tree[now] = Position(1, sum(self.weights))
+                return
             self.moves_tree[now] = Position(0, sum(self.weights))
             return
         self.moves_tree[now] = Position()
@@ -800,105 +801,6 @@ class OdnomastkaD_DurakWithWeights(OdnomastkaDurakWithWeights):
     def who_wins(self):
         if self.moves_tree.get((self.cards, self.weights)) is None:
             self.build_moves_tree()
-        if self.moves_tree[(self.cards, self.weights)].who_wins == 2:
+        if self.winning_score() == 0:
             return 2
         return (self.moves_tree[(self.cards, self.weights)].who_wins + self.reverse) % 2
-
-    def build_moves_tree_opponent(self):
-        now = (self.cards, self.weights)
-        pole = self.pole
-        self.change_position(pole)
-        self.pole = -1
-        self.build_moves_tree()
-        take = (self.cards, self.weights)
-        who_wins_take = self.moves_tree[take].who_wins
-        self.change_position(pole)
-        protection = pole  # карта защиты
-        while protection < self.size and self.has_player_position(protection, 0):
-            protection += 1
-        p = Position(who_wins_take, self.moves_tree[take].winning_score)  # что получится после этого хода
-        self.moves_tree[now].opponents_moves[pole] = pole
-        is_catching = False
-        if protection != self.size:
-            w1, w2 = self.weights[pole], self.weights[protection]
-            self.remove(pole, protection)
-            self.change_player()  # из-за этого ответ кто выиграл для этого случая будет обратный
-            transmission = (self.cards, self.weights)
-            self.build_moves_tree()
-            self.change_player()
-            self.add(pole, 0, w1, protection, 1, w2)
-            is_catching = True
-            who_wins_transmission = (self.moves_tree[transmission].who_wins + 1) % 2
-            if self.moves_tree[transmission].who_wins == 2:
-                who_wins_transmission = 2
-            if ((who_wins_take == 0 or who_wins_take == 2) and who_wins_transmission == 1) or \
-                    (who_wins_take == 0 and who_wins_transmission == 2):
-                p = Position(who_wins_transmission, self.moves_tree[transmission].winning_score)
-                self.moves_tree[now].opponents_moves[pole] = protection
-            elif who_wins_take == 1 and who_wins_transmission == 1:
-                p.who_wins = 1
-                if self.moves_tree[take].winning_score < self.moves_tree[transmission].winning_score:
-                    p.winning_score = self.moves_tree[transmission].winning_score
-                    self.moves_tree[now].opponents_moves[pole] = protection
-                elif self.moves_tree[take].winning_score == self.moves_tree[transmission].winning_score:
-                    is_catching = False
-            elif who_wins_take == 0 and who_wins_transmission == 0:
-                p.who_wins = 0
-                if self.moves_tree[take].winning_score > self.moves_tree[transmission].winning_score:
-                    p.winning_score = self.moves_tree[transmission].winning_score
-                    self.moves_tree[now].opponents_moves[pole] = protection
-                elif self.moves_tree[take].winning_score == self.moves_tree[transmission].winning_score:
-                    is_catching = False
-            elif who_wins_take == 2 and who_wins_transmission == 2:
-                is_catching = False
-        if self.moves_tree[now].who_wins == -1 or (
-                self.moves_tree[now].who_wins == 1 and (p.who_wins == 0 or p.who_wins == 2)) or (
-                self.moves_tree[now].who_wins == 2 and p.who_wins == 0):
-            self.write_position(p, pole, is_catching, protection)
-        elif self.moves_tree[now].who_wins == 0 and p.who_wins == 0:
-            if self.moves_tree[now].winning_score < p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
-            elif self.moves_tree[now].winning_score == p.winning_score:
-                self.moves_tree[now].good_moves.append(pole)
-                if is_catching and self.moves_tree[now].opponents_moves[pole] == protection:
-                    self.moves_tree[now].catching_the_transmission = pole
-                elif is_catching and self.moves_tree[now].opponents_moves[pole] == pole and \
-                        self.moves_tree[now].catching_the_take == -1:
-                    self.moves_tree[now].catching_the_take = pole
-        elif self.moves_tree[now].who_wins == 1 and p.who_wins == 1:
-            if self.moves_tree[now].winning_score > p.winning_score:
-                self.write_position(p, pole, is_catching, protection)
-            elif self.moves_tree[now].winning_score == p.winning_score:
-                self.moves_tree[now].good_moves.append(pole)
-                if is_catching and self.moves_tree[now].opponents_moves[pole] == protection:
-                    self.moves_tree[now].catching_the_transmission = pole
-                elif is_catching and self.moves_tree[now].opponents_moves[pole] == pole and \
-                        self.moves_tree[now].catching_the_take == -1:
-                    self.moves_tree[now].catching_the_take = pole
-        elif self.moves_tree[now].who_wins == 2 and p.who_wins == 2:
-            self.moves_tree[now].good_moves.append(pole)
-            if is_catching and self.moves_tree[now].opponents_moves[pole] == protection:
-                self.moves_tree[now].catching_the_transmission = pole
-            elif is_catching and self.moves_tree[now].opponents_moves[pole] == pole and \
-                    self.moves_tree[now].catching_the_take == -1:
-                self.moves_tree[now].catching_the_take = pole
-
-    def build_moves_tree(self):
-        now = (self.cards, self.weights)
-        if not self.moves_tree.get(now) is None:
-            return
-        if self.size == 0:
-            self.moves_tree[now] = Position(2, 0)
-            return
-        if self.cards == self.degrees[self.size]:
-            self.moves_tree[now] = Position(1, sum(self.weights))
-            return
-        if self.cards == (self.degrees[self.size + 1] - 1):
-            self.moves_tree[now] = Position(0, sum(self.weights))
-            return
-        self.moves_tree[now] = Position()
-        for i in range(self.size):
-            if self.has_player_position(i, 0):
-                self.pole = i
-                self.build_moves_tree_opponent()
-        self.pole = -1

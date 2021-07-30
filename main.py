@@ -739,11 +739,11 @@ class OdnomastkaDurakWithWeights(OdnomastkaDurak):
                     p = Position(1, self.moves_tree[transmission].winning_score)
                     self.moves_tree[now].opponents_moves[pole] = protection
                 elif p.who_wins == 1 and who_wins_transmission == 1 and\
-                        p.winning_score < self.moves_tree[transmission].winning_score:
+                        abs(p.winning_score) < abs(self.moves_tree[transmission].winning_score):
                     p.winning_score = self.moves_tree[transmission].winning_score
                     self.moves_tree[now].opponents_moves[pole] = protection
                 elif p.who_wins == 0 and who_wins_transmission == 0 and \
-                        p.winning_score > self.moves_tree[transmission].winning_score:
+                        abs(p.winning_score) > abs(self.moves_tree[transmission].winning_score):
                     p.winning_score = self.moves_tree[transmission].winning_score
                     self.moves_tree[now].opponents_moves[pole] = protection
                 if p.who_wins != self.moves_tree[take].who_wins or \

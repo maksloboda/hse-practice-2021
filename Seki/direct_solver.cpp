@@ -33,6 +33,10 @@ public:
     return value <= other.value;
   }
 
+  bool operator==(const Move &other) const {
+    return (value == other.value && x == other.value && y == other.value);
+  }
+
 };
 
 class Field {
@@ -182,7 +186,15 @@ public:
 
     unrolled += 1;
     auto value = Move(is_r ? 2 : -2, 0, 0);
-    for (auto &m : field.get_moves()) {
+    auto moves = field.get_moves();
+    if (is_r) {
+        vector<Move>::iterator found = find(moves.begin(), moves.end(), Move(0, 3, 2));
+        if (found != moves.end()) {
+          moves.erase(found);
+          moves.insert(moves.begin(), Move(0, 3, 2));
+        }
+    }
+    for (auto &m : moves) {
       Field new_field = field;
       new_field.add(m.x, m.y, -1);
       Move new_value = _find_optimal_impl(new_field, depth + 1, !is_r,

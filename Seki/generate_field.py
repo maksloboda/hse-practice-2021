@@ -3,10 +3,12 @@ import random
 import math
 
 def matrix_of_sum(cnt, s):
-    if cnt == 1:
-        return [s]
-    num = random.randint(0, s // cnt)
-    return [num] + matrix_of_sum(cnt - 1, s - num)
+    indexes = np.arange(cnt)
+    picked = random.choices(indexes, k=s)
+    result = [0] * cnt
+    for i in picked:
+        result[i] += 1
+    return result
 
 def generate_field():
     print("type in value for s")
@@ -59,3 +61,6 @@ def generate_field():
             np.random.shuffle(seki_field)
         
     print(seki_field)
+
+if __name__ == "__main__":
+    generate_field()

@@ -6,6 +6,8 @@
 
 using namespace std;
 
+constexpr size_t max_field_dim = 6;
+
 class Move {
 public:
   float value;
@@ -39,17 +41,22 @@ class Field {
 private:
   array<int, 2> shape;
   // [row][col]
-  vector<vector<int>> data;
-  vector<int> row_sum, col_sum;
+  array<array<int, max_field_dim>, max_field_dim> data;
+  array<int, max_field_dim> row_sum, col_sum;
 public:
   Field(const vector<vector<int>> &new_data) {
-    data = new_data;
+    for (int i = 0; i < new_data.size(); ++i) {
+      auto row = new_data[i];
+      for (int j = 0; j < row.size(); ++j) {
+        data[i][j] = row[j];
+      }
+    }
     int n_rows = new_data.size();
     int n_cols = new_data[0].size();
     shape[0] = n_rows;
     shape[1] = n_cols;
-    row_sum.resize(n_rows);
-    col_sum.resize(n_cols);
+    // row_sum.resize(n_rows);
+    // col_sum.resize(n_cols);
     for (int i = 0; i < n_rows; ++i) {
       row_sum[i] = accumulate(new_data[i].begin(), new_data[i].end(), 0);
     }

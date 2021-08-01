@@ -106,7 +106,8 @@ public:
         }
       }
     }
-    sort(moves.begin(), moves.end());
+    random_shuffle(moves.begin(), moves.end());
+    stable_sort(moves.begin(), moves.end());
     if (is_reversed) {
       reverse(moves.begin(), moves.end());
     }

@@ -96,17 +96,20 @@ public:
     return this->has_zero_row() or this->has_zero_col();
   }
 
-  vector<Move> get_moves() const {
+  vector<Move> get_moves(bool is_reversed) const {
     vector<Move> moves;
 
     for (int i = 0; i < shape[0]; ++i) {
       for (int j = 0; j < shape[1]; ++j) {
         if (data[i][j] != 0) {
-          moves.emplace_back(0, j, i);
+          moves.emplace_back(row_sum[i] - col_sum[j], j, i);
         }
       }
     }
-    random_shuffle(moves.begin(), moves.end());
+    sort(moves.begin(), moves.end());
+    if (is_reversed) {
+      reverse(moves.begin(), moves.end());
+    }
     return moves;
   }
 
@@ -189,7 +192,7 @@ public:
 
     unrolled += 1;
     auto value = Move(is_r ? 2 : -2, 0, 0);
-    for (auto &m : field.get_moves()) {
+    for (auto &m : field.get_moves(!is_r)) {
       Field new_field = field;
       new_field.add(m.x, m.y, -1);
       Move new_value = _find_optimal_impl(new_field, depth + 1, !is_r,

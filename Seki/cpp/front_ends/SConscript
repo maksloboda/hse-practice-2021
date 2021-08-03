@@ -1,0 +1,4 @@
+Import('env')
+env = env.Clone()
+
+env.Object("front", "{0}_test.cpp".format(env["target"]))

@@ -1,7 +1,9 @@
-#include "direct_solver.cpp"
+#include "core/core.h"
 #include <iostream>
 #include <random>
 #include <chrono>
+
+using namespace std;
 
 int main() {
   srand(time(NULL));

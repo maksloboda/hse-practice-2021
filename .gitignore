@@ -1,0 +1,9 @@
+Seki/test_matricies/*
+.idea/*
+.vscode/*
+*.swp
+*.o
+Seki/cpp/bin
+Seki/python/test_matricies
+perf_res.csv
+.sconsign.dblite

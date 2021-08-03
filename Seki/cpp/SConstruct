@@ -1,0 +1,39 @@
+vars = Variables(None, ARGUMENTS)
+
+vars.Add(EnumVariable('target',
+    help='Set which frontend is built (play, perf)',
+    default="play",
+    allowed_values=("play", "perf"),
+  )
+)
+
+vars.Add(BoolVariable('debug_symbols',
+    help='decides if debug symbols are needed',
+    default="false",
+  )
+)
+
+vars.Add(EnumVariable('opt',
+    help='Decides level of optimisation (0, 1, 2, 3)',
+    default="3",
+    allowed_values=('0', '1', '2', '3'),
+  )
+)
+
+env = Environment(variables=vars)
+
+flag_array = ["-I.", "-Wall"]
+
+debug_symbols = env["debug_symbols"]
+opt_level = env["opt"]
+if debug_symbols:
+  flag_array.append("-g")
+flag_array.append("-O{0}".format(opt_level))
+
+
+ccflags = " ".join(flag_array)
+env["CPPFLAGS"] = ccflags
+
+env.SConscript(["core/SConscript", "front_ends/SConscript"], 'env')
+
+env.Program("bin/prog", ["front_ends/front", "core/core"])

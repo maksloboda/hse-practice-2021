@@ -5,5 +5,6 @@ Seki/test_matricies/*
 *.o
 Seki/cpp/bin
 Seki/python/test_matricies
+Seki/python/test_matricies_sf
 perf_res.csv
 .sconsign.dblite

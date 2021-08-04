@@ -4,6 +4,7 @@ import subprocess
 from typing import Text
 
 input_directory = os.getenv("INPUT_DIR", "test_matricies")
+print(input_directory)
 
 res = open("perf_result.csv", "w")
 

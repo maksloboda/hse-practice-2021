@@ -66,12 +66,12 @@ array<int, 2> Field::get_shape() const {
 }
 
 bool Field::has_zero_row() const {
-  auto it = min_element(row_sum.begin(), row_sum.end());
+  auto it = min_element(row_sum.begin(), row_sum.begin() + shape[0]);
   return *it == 0;
 }
 
 bool Field::has_zero_col() const {
-  auto it = min_element(col_sum.begin(), col_sum.end());
+  auto it = min_element(col_sum.begin(), col_sum.begin() + shape[1]);
   return *it == 0;
 }
 

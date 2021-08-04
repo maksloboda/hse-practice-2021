@@ -79,21 +79,39 @@ bool Field::is_terminal() const {
   return this->has_zero_row() or this->has_zero_col();
 }
 
-vector<Move> Field::get_moves(bool is_reversed) const {
+vector<Move> Field::get_moves(bool is_r) const {
   vector<Move> moves;
 
   for (int i = 0; i < shape[0]; ++i) {
     for (int j = 0; j < shape[1]; ++j) {
       if (data[i][j] != 0) {
-        moves.emplace_back(row_sum[i] - col_sum[j], j, i);
+        moves.emplace_back(0, j, i);
       }
     }
   }
+  // Shuffle the array to have true randomness
   random_shuffle(moves.begin(), moves.end());
-  stable_sort(moves.begin(), moves.end());
-  if (is_reversed) {
-    reverse(moves.begin(), moves.end());
-  }
+  // Partition array into good moves and bad moves
+  auto it = partition(moves.begin(), moves.end(),
+    [this, is_r](const Move &m1) {
+      int value = row_sum[m1.y] - col_sum[m1.x];
+      if (!is_r) value = -value;
+      return value < 0;
+  });
+
+  auto move_value = [this, is_r](const Move &m1) {
+    return is_r ? row_sum[m1.y] : col_sum[m1.x];
+  };
+
+  auto compare_moves = [move_value](const Move &m1, const Move &m2) {
+    return move_value(m1) < move_value(m2);
+  };
+
+  // Sort first half of the moves
+  sort(moves.begin(), it, compare_moves);
+  // Sort second half of the moves
+  sort(it, moves.end(), compare_moves);
+
   return moves;
 }
 
@@ -159,7 +177,7 @@ Move SekiSolver::_find_optimal_impl(const Field &field, int depth, bool is_r,
 
   unrolled += 1;
   auto value = Move(is_r ? 2 : -2, 0, 0);
-  for (auto &m : field.get_moves(!is_r)) {
+  for (auto &m : field.get_moves(is_r)) {
     Field new_field = field;
     new_field.add(m.x, m.y, -1);
     Move new_value = _find_optimal_impl(new_field, depth + 1, !is_r,

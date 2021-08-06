@@ -37,6 +37,9 @@ public:
 
   std::array<int, 2> get_shape() const;
 
+  int get_min_row() const;
+  int get_min_col() const;
+
   bool has_zero_row() const;
   bool has_zero_col() const;
   bool is_terminal() const;

@@ -65,14 +65,22 @@ array<int, 2> Field::get_shape() const {
   return this->shape;
 }
 
-bool Field::has_zero_row() const {
+int Field::get_min_row() const {
   auto it = min_element(row_sum.begin(), row_sum.begin() + shape[0]);
-  return *it == 0;
+  return *it;
+}
+
+int Field::get_min_col() const {
+  auto it = min_element(col_sum.begin(), col_sum.begin() + shape[1]);
+  return *it;
+}
+
+bool Field::has_zero_row() const {
+  return get_min_row() == 0;
 }
 
 bool Field::has_zero_col() const {
-  auto it = min_element(col_sum.begin(), col_sum.begin() + shape[1]);
-  return *it == 0;
+  return get_min_col() == 0;
 }
 
 bool Field::is_terminal() const {
@@ -145,11 +153,11 @@ float dseki_eval_func(const Field &f, int depth, bool is_r) {
   return seki_eval_func(f, depth, is_r);
 }
 
-float get_guarantee(bool is_r, int depth) {
+float get_guarantee(bool is_r, int depth, const Field &f) {
   if (is_r) {
-    return 1.0 / (float)(depth + 1);
+    return 1.0 / (float)(depth + f.get_min_col());
   } else {
-    return -1.0 / (float)(depth + 1);
+    return -1.0 / (float)(depth + f.get_min_row());
   }
 }
 
@@ -184,7 +192,7 @@ Move SekiSolver::_find_optimal_impl(const Field &field, int depth, bool is_r,
   }
  
   {
-    float gurantee = get_guarantee(is_r, depth);
+    float gurantee = get_guarantee(is_r, depth, field);
     auto g = Move(gurantee, 0, 0);
     if (is_r) {
       if (g <= alpha) return g;

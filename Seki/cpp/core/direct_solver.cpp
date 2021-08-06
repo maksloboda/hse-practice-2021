@@ -145,6 +145,14 @@ float dseki_eval_func(const Field &f, int depth, bool is_r) {
   return seki_eval_func(f, depth, is_r);
 }
 
+float get_guarantee(bool is_r, int depth) {
+  if (is_r) {
+    return 1.0 / (float)(depth + 1);
+  } else {
+    return -1.0 / (float)(depth + 1);
+  }
+}
+
 SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type)
   : state(matrix) {
   depth = 1;
@@ -173,6 +181,16 @@ Move SekiSolver::_find_optimal_impl(const Field &field, int depth, bool is_r,
   if (field.is_terminal()) {
     float fv = eval_function(field, depth, is_r);
     return Move(fv, 0, 0);
+  }
+ 
+  {
+    float gurantee = get_guarantee(is_r, depth);
+    auto g = Move(gurantee, 0, 0);
+    if (is_r) {
+      if (g <= alpha) return g;
+    } else {
+      if (g >= beta) return g;
+    }
   }
 
   unrolled += 1;

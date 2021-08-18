@@ -20,9 +20,9 @@ int main() {
     }
   }
 
-  auto ss = SekiSolver(v, SekiType::SEKI);
+  auto ss = SekiSolver(v, SekiType::SEKI, false);
   std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-  Move opt = ss.find_optimal(false);
+  Move opt = ss.find_optimal();
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
   double time_seconds = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0;
   cout << time_seconds << "," << ss.unrolled << "," << ss.unrolled / time_seconds  <<  "," << opt.value << "," << opt.x << "," << opt.y << endl;

@@ -83,31 +83,41 @@ bool Field::has_zero_col() const {
   return get_min_col() == 0;
 }
 
-bool Field::is_terminal() const {
-  return this->has_zero_row() or this->has_zero_col();
+const std::array<int, max_field_dim> &Field::get_row_sum() const {
+  return row_sum;
 }
 
-vector<Move> Field::get_moves(bool is_r) const {
+const std::array<int, max_field_dim> &Field::get_col_sum() const {
+  return col_sum;
+}
+
+vector<Move> GameState::get_moves() const {
   vector<Move> moves;
+
+  auto shape = field.get_shape();
 
   for (int i = 0; i < shape[0]; ++i) {
     for (int j = 0; j < shape[1]; ++j) {
-      if (data[i][j] != 0) {
+      if (field.get(j, i) != 0) {
         moves.emplace_back(0, j, i);
       }
     }
   }
+
+  auto row_sum = field.get_row_sum();
+  auto col_sum = field.get_col_sum();
+
   // Shuffle the array to have true randomness
   random_shuffle(moves.begin(), moves.end());
   // Partition array into good moves and bad moves
   auto it = partition(moves.begin(), moves.end(),
-    [this, is_r](const Move &m1) {
+    [this, &row_sum, &col_sum](const Move &m1) {
       int value = row_sum[m1.y] - col_sum[m1.x];
       if (!is_r) value = -value;
       return value < 0;
   });
 
-  auto move_value = [this, is_r](const Move &m1) {
+  auto move_value = [this, &row_sum, &col_sum](const Move &m1) {
     return is_r ? row_sum[m1.y] : col_sum[m1.x];
   };
 
@@ -123,6 +133,32 @@ vector<Move> Field::get_moves(bool is_r) const {
   return moves;
 }
 
+GameState::GameState(Field field, bool is_r, int depth)
+    : field(field), is_r(is_r), depth(depth) {}
+
+const Field &GameState::get_field() const {
+  return field;
+}
+
+bool GameState::get_is_r() const {
+  return is_r;
+}
+
+int GameState::get_depth() const {
+  return depth;
+}
+
+void GameState::apply_move(const Move &m) {
+  field.add(m.x, m.y, -1);
+  is_r = !is_r;
+  ++depth;
+}
+
+bool GameState::is_terminal() const {
+  return field.has_zero_col() or field.has_zero_row();
+}
+
+
 ostream &operator<< (ostream &s, const Field &f) {
   for (int i = 0; i < f.shape[0]; ++i) {
     for (int j = 0; j < f.shape[1]; ++j) {
@@ -133,37 +169,40 @@ ostream &operator<< (ostream &s, const Field &f) {
   return s;
 }
 
-float seki_eval_func(const Field &f, int depth, bool is_r) {
+float seki_eval_func(const GameState &state) {
   bool r_won = false;
+  auto f = state.get_field();
+
   if (f.has_zero_col() and f.has_zero_row()) {
-    r_won = !is_r;
+    r_won = !state.get_is_r();
   } else if (f.has_zero_row()) {
     r_won = true;
   } else {
     r_won = false;
   }
   float value = r_won ? -1 : 1;
-  return value / depth;
+  return value / state.get_depth();
 }
 
-float dseki_eval_func(const Field &f, int depth, bool is_r) {
+float dseki_eval_func(const GameState &state) {
+  auto f = state.get_field();
   if (f.has_zero_col() and f.has_zero_row()) {
     return 0;
   }
-  return seki_eval_func(f, depth, is_r);
+  return seki_eval_func(state);
 }
 
-float get_guarantee(bool is_r, int depth, const Field &f) {
-  if (is_r) {
-    return 1.0 / (float)(depth + f.get_min_col());
+float get_guarantee(const GameState &state) {
+  auto f = state.get_field();
+  if (state.get_is_r()) {
+    return 1.0 / (float)(state.get_depth() + f.get_min_col());
   } else {
-    return -1.0 / (float)(depth + f.get_min_row());
+    return -1.0 / (float)(state.get_depth() + f.get_min_row());
   }
 }
 
-SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type)
-  : state(matrix) {
-  depth = 1;
+SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type,
+    bool is_r) : state(Field(matrix), is_r, 1) {
   unrolled = 0;
   switch (type)
   {
@@ -180,21 +219,20 @@ SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type)
 }
 
 void SekiSolver::decrement(int x, int y) {
-  state.add(x, y, -1);
-  ++depth;
+  state.apply_move(Move(0.0, x, y));
 }
 
-Move SekiSolver::_find_optimal_impl(const Field &field, int depth, bool is_r,
+Move SekiSolver::_find_optimal_impl(const GameState &state,
     Move alpha, Move beta) {
-  if (field.is_terminal()) {
-    float fv = eval_function(field, depth, is_r);
+  if (state.is_terminal()) {
+    float fv = eval_function(state);
     return Move(fv, 0, 0);
   }
  
   {
-    float gurantee = get_guarantee(is_r, depth, field);
+    float gurantee = get_guarantee(state);
     auto g = Move(gurantee, 0, 0);
-    if (is_r) {
+    if (state.get_is_r()) {
       if (g <= alpha) return g;
     } else {
       if (g >= beta) return g;
@@ -202,15 +240,15 @@ Move SekiSolver::_find_optimal_impl(const Field &field, int depth, bool is_r,
   }
 
   unrolled += 1;
-  auto value = Move(is_r ? 2 : -2, 0, 0);
-  for (auto &m : field.get_moves(is_r)) {
-    Field new_field = field;
-    new_field.add(m.x, m.y, -1);
-    Move new_value = _find_optimal_impl(new_field, depth + 1, !is_r,
+  auto value = Move(state.get_is_r() ? 2 : -2, 0, 0);
+  for (auto &m : state.get_moves()) {
+    GameState new_state = state;
+    new_state.apply_move(m);
+    Move new_value = _find_optimal_impl(new_state,
         alpha, beta);
     new_value.x = m.x;
     new_value.y = m.y;
-    if (is_r) {
+    if (state.get_is_r()) {
       value = min(value, new_value);
       if (value <= alpha)
         return value;
@@ -225,8 +263,12 @@ Move SekiSolver::_find_optimal_impl(const Field &field, int depth, bool is_r,
   return value;
 }
 
-Move SekiSolver::find_optimal(bool is_r) {
+Move SekiSolver::find_optimal() {
   unrolled = 0;
-  Move opt = _find_optimal_impl(state, depth, is_r, Move(-2, 0, 0), Move(2, 0, 0));
+  Move opt = _find_optimal_impl(state, Move(-2, 0, 0), Move(2, 0, 0));
   return opt;
+}
+
+const GameState &SekiSolver::get_state() const {
+  return state;
 }

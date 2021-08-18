@@ -24,7 +24,7 @@ def generate_permutation(size):
 
 def generate_complex_permutations(size, max_allowed_element, sum):
     if size * max_allowed_element < sum:
-        print("Impossible sum requested!", file=sys.stderr)
+        #print("Impossible sum requested!", file=sys.stderr)
         return
     current = generate_permutation(size)
     while np.sum(current[0, :]) < sum:

@@ -1,9 +1,9 @@
 vars = Variables(None, ARGUMENTS)
 
 vars.Add(EnumVariable('target',
-    help='Set which frontend is built (play, perf)',
+    help='Set which frontend is built (play, perf, total)',
     default="play",
-    allowed_values=("play", "perf"),
+    allowed_values=("play", "perf", "total"),
   )
 )
 

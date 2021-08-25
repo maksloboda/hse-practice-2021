@@ -229,18 +229,33 @@ Move SekiSolver::_find_optimal_impl(const GameState &state,
     return Move(fv, 0, 0);
   }
  
+  auto value = Move(state.get_is_r() ? 2 : -2, 0, 0);
+
+  auto update_bounds_and_value =
+    [&value, &alpha, &beta, &state] (const Move &new_value) {
+    if (state.get_is_r()) {
+      value = min(value, new_value);
+      beta = min(beta, value);
+    } else {
+      value = max(value, new_value);
+      alpha = max(alpha, value);
+    }
+  };
+
+  auto should_prune = [&alpha, &beta] () {
+    return alpha >= beta;
+  };
+
   {
     float gurantee = get_guarantee(state);
     auto g = Move(gurantee, 0, 0);
-    if (state.get_is_r()) {
-      if (g <= alpha) return g;
-    } else {
-      if (g >= beta) return g;
-    }
+    update_bounds_and_value(g);
+    if (should_prune())
+      return value;
   }
 
   unrolled += 1;
-  auto value = Move(state.get_is_r() ? 2 : -2, 0, 0);
+  
   for (auto &m : state.get_moves()) {
     GameState new_state = state;
     new_state.apply_move(m);
@@ -248,17 +263,9 @@ Move SekiSolver::_find_optimal_impl(const GameState &state,
         alpha, beta);
     new_value.x = m.x;
     new_value.y = m.y;
-    if (state.get_is_r()) {
-      value = min(value, new_value);
-      if (value <= alpha)
-        return value;
-      beta = min(beta, value);
-    } else {
-      value = max(value, new_value);
-      if (value >= beta)
-        return value;
-      alpha = max(alpha, value);
-    }
+    update_bounds_and_value(new_value);
+    if (should_prune())
+      break;
   }
   return value;
 }

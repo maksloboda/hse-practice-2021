@@ -15,6 +15,7 @@ class Move {
 public:
   float value;
   int x, y;
+  bool is_pass;
 
   Move(float value, int x, int y);
 
@@ -54,19 +55,29 @@ public:
 
 };
 
+enum PassType {
+  NO_PASS = 0,
+  R_PASS = 1,
+  C_PASS = 2,
+  ANY_PASS = 3,
+};
+
 // Stores everything needed for the current state of the game
 class GameState {
 private:
   Field field;
   bool is_r;
   int depth;
+  int pass_count;
+  PassType pass_policy;
 public:
 
-  GameState(Field field, bool is_r, int depth);
+  GameState(Field field, bool is_r, int depth, PassType pass_policy);
 
   const Field &get_field() const;
   bool get_is_r() const;
   int get_depth() const;
+  int get_pass_count() const;
 
   void apply_move(const Move &m);
 
@@ -87,16 +98,19 @@ typedef float (*eval_function_t)(const GameState &);
 class SekiSolver {
 private:
   GameState state;
+  SekiType game_type;
+  PassType pass_policy;
   eval_function_t eval_function;
 public:
 
   // Amount of states that were looked at on the last call of find optimal
   int unrolled;
 
-  SekiSolver(const std::vector<std::vector<int>> &matrix, SekiType type,
+  SekiSolver(const std::vector<std::vector<int>> &matrix, SekiType type, 
+      PassType pass_policy,
       bool is_r);
 
-  void decrement(int x, int y);
+  void apply_move(Move m);
 
   Move _find_optimal_impl(const GameState &state, Move alpha, Move beta);
 

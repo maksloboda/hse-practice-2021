@@ -9,6 +9,7 @@ Move::Move(float value, int x, int y) {
   this->value = value;
   this->x = x;
   this->y = y;
+  this->is_pass = false;
 }
 
 bool Move::operator>(const Move &other) const {
@@ -130,11 +131,20 @@ vector<Move> GameState::get_moves() const {
   // Sort second half of the moves
   sort(it, moves.end(), compare_moves);
 
+  Move pass = Move(0.0, 0, 0);
+  pass.is_pass = true;
+
+  if ((is_r && pass_policy & PassType::R_PASS)
+    || (!is_r && pass_policy & PassType::C_PASS)) {
+    moves.insert(it, pass);
+  }
+
   return moves;
 }
 
-GameState::GameState(Field field, bool is_r, int depth)
-    : field(field), is_r(is_r), depth(depth) {}
+GameState::GameState(Field field, bool is_r, int depth, PassType pass_policy)
+    : field(field), is_r(is_r), depth(depth), pass_count(0),
+    pass_policy(pass_policy) {}
 
 const Field &GameState::get_field() const {
   return field;
@@ -148,14 +158,23 @@ int GameState::get_depth() const {
   return depth;
 }
 
+int GameState::get_pass_count() const {
+  return pass_count;
+}
+
 void GameState::apply_move(const Move &m) {
-  field.add(m.x, m.y, -1);
+  if (!m.is_pass) {
+    field.add(m.x, m.y, -1);
+    pass_count = 0;
+  } else {
+    ++pass_count;
+  }
   is_r = !is_r;
   ++depth;
 }
 
 bool GameState::is_terminal() const {
-  return field.has_zero_col() or field.has_zero_row();
+  return field.has_zero_col() or field.has_zero_row() or pass_count == 2;
 }
 
 
@@ -170,6 +189,12 @@ ostream &operator<< (ostream &s, const Field &f) {
 }
 
 float seki_eval_func(const GameState &state) {
+
+  // Draw in case of double pass
+  if (state.get_pass_count() == 2) {
+    return 0.0;
+  }
+
   bool r_won = false;
   auto f = state.get_field();
 
@@ -202,7 +227,10 @@ float get_guarantee(const GameState &state) {
 }
 
 SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type,
-    bool is_r) : state(Field(matrix), is_r, 1) {
+    PassType pass_policy,
+    bool is_r)
+    : state(Field(matrix), is_r, 1, pass_policy), game_type(type),
+    pass_policy(pass_policy) {
   unrolled = 0;
   switch (type)
   {
@@ -218,8 +246,8 @@ SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type,
   }
 }
 
-void SekiSolver::decrement(int x, int y) {
-  state.apply_move(Move(0.0, x, y));
+void SekiSolver::apply_move(Move m) {
+  state.apply_move(m);
 }
 
 Move SekiSolver::_find_optimal_impl(const GameState &state,
@@ -255,15 +283,14 @@ Move SekiSolver::_find_optimal_impl(const GameState &state,
   }
 
   unrolled += 1;
-  
-  for (auto &m : state.get_moves()) {
+
+  for (Move m : state.get_moves()) {
     GameState new_state = state;
     new_state.apply_move(m);
     Move new_value = _find_optimal_impl(new_state,
         alpha, beta);
-    new_value.x = m.x;
-    new_value.y = m.y;
-    update_bounds_and_value(new_value);
+    m.value = new_value.value;
+    update_bounds_and_value(m);
     if (should_prune())
       break;
   }

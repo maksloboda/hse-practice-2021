@@ -23,7 +23,8 @@ int main() {
     }
   }
 
-  auto ss = SekiSolver(v, is_seki ? SekiType::SEKI : SekiType::DSEKI, is_r);
+  auto ss = SekiSolver(v, is_seki ? SekiType::SEKI : SekiType::DSEKI,
+      PassType::NO_PASS, is_r);
   Move opt = ss.find_optimal();
   
   string outcome;

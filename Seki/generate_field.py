@@ -12,7 +12,7 @@ def generate_field():
     print("type in value for s")
     s = int(input())
     while s <= 0:
-        print("unsuitable value for S")
+        print("unsuitable value for s")
         print("try again")
         s = int(input())
     print("insert 1 if you want to have cols/rows with sum = 1 or 0 otherwise")
